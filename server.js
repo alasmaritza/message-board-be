@@ -1,9 +1,15 @@
 var express = require('express');
 var app = express();
 var bodyParser = require('body-parser');
-var mongo = require('mongodb').MongoClient;
+var mongoose = require('mongoose');
 
-var database;
+//after mongoose, global db not needed
+//var database;
+//object containing properties expected in message
+//uppercase, something being instantiated and a model
+var Message = mongoose.model('Message', {
+    msg: String
+});
 
 app.use(bodyParser.json());
 
@@ -13,26 +19,37 @@ app.use(function(req,res,next) {
     next();
 });
 
+app.get('/api/message', GetMessages);
+
 app.post('/api/message', function(req,res) {
     console.log(req.body);
-    database.collection('messages').insertOne(req.body);
-    res.status(200);
 
+    var message = new Message(req.body);
+    message.save();
+    // no longer needed with mongoose
+   // database.collection('messages').insertOne(req.body);
+    res.status(200);
 });
 
-mongo.connect('mongodb://localhost:27017/test', { useNewUrlParser: true },function(err,client) {
-    //err,db
-//if (!err) {
-  //  console.log('we are connected to mongo');
+function GetMessages(req, res) {
+    Message.find({}).exec(function(err,result) {
+        res.send(result);
+    })
+};
+
+mongoose.connect('mongodb://localhost:27017/test',function(err,db) {
+    //err,db 
+    //removed and reverted after mongoose, client
+if (!err) {
+      console.log('we are connected to mongo');
     //db.collection('messages').insertOne({'msg':'test'});
-//}
+}
 
-if (err) throw err;
+//if (err) throw err;
 
-var db = client.db('test');
-database = db;
-
-  //client.close();
+//var db = client.db('test');
+//database = db;
+//  client.close();
 });
 
 var server = app.listen(5000, function() {
