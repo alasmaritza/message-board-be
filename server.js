@@ -2,6 +2,7 @@ var express = require('express');
 var app = express();
 var bodyParser = require('body-parser');
 var mongoose = require('mongoose');
+mongoose.Promise = global.Promise;
 //require in controllers
 var auth = require('./controllers/auth');
 var message = require('./controllers/message');
