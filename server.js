@@ -6,6 +6,7 @@ mongoose.Promise = global.Promise;
 //require in controllers
 var auth = require('./controllers/auth');
 var message = require('./controllers/message');
+var category = require('./controllers/category');
 
 //after mongoose, global db not needed
 //var database;
@@ -28,7 +29,9 @@ app.post('/api/message', message.post);
 //method exported to own file and brought in via require
 app.post('/auth/register', auth.register);
 
+app.get('/api/category', category.get);
 
+app.post('/api/category', category.post);
 
 mongoose.connect('mongodb://localhost:27017/test',function(err,db) {
     //err,db 
