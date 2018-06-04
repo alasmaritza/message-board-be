@@ -7,32 +7,28 @@ mongoose.Promise = global.Promise;
 var auth = require('./controllers/auth');
 var message = require('./controllers/message');
 var category = require('./controllers/category');
+var checkAuthenticated = require('./services/checkAuthenticated');
+var cors = require('./services/cors');
 
 //after mongoose, global db not needed
 //var database;
 //object containing properties expected in message
 //uppercase, something being instantiated and a model
 
-
+//Middleware
 app.use(bodyParser.json());
+app.use(cors);
 
-app.use(function(req,res,next) {
-    res.header('Access-Control-Allow-Origin','*');
-    res.header('Access-Control-Allow-Headers','Content-Type, Authorization');
-    next();
-});
-
+//Requests
 app.get('/api/message', message.get);
-
-app.post('/api/message', message.post);
-
+app.post('/api/message', checkAuthenticated, message.post);
 //method exported to own file and brought in via require
 app.post('/auth/register', auth.register);
-
+app.post('/auth/login', auth.login);
 app.get('/api/category', category.get);
+app.post('/api/category', checkAuthenticated, category.post);
 
-app.post('/api/category', category.post);
-
+//Connection
 mongoose.connect('mongodb://localhost:27017/test',function(err,db) {
     //err,db 
     //removed and reverted after mongoose, client
@@ -42,7 +38,6 @@ if (!err) {
 }
 
 //if (err) throw err;
-
 //var db = client.db('test');
 //database = db;
 //  client.close();
